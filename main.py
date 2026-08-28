@@ -1,0 +1,36 @@
+from fastapi import FastAPI
+from schemas import DashboardResponse
+
+from services.weather import get_weather
+from services.thermal import calculate_thermal_stress
+from services.risk import predict_risk
+from services.recommendation import generate_recommendations
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+    return {"message": "SIH Backend is running!"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+@app.get("/dashboard/{location}", response_model=DashboardResponse)
+def dashboard(location: str):
+
+    weather = get_weather(location)
+
+    thermal = calculate_thermal_stress(weather)
+
+    risk = predict_risk(weather, thermal)
+
+    recommendations = generate_recommendations(risk)
+
+    return {
+        "location": location,
+        "weather": weather,
+        "thermal_stress": thermal,
+        "risk": risk,
+        "recommendations": recommendations
+    }
