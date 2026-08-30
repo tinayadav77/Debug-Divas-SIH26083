@@ -5,6 +5,7 @@ from services.weather import get_weather
 from services.thermal import calculate_thermal_stress
 from services.risk import predict_risk
 from services.recommendation import generate_recommendations
+from services.forecast import get_forecast
 app = FastAPI()
 
 
@@ -33,4 +34,10 @@ def dashboard(location: str):
         "thermal_stress": thermal,
         "risk": risk,
         "recommendations": recommendations
+    }
+@app.get("/forecast/{location}")
+def forecast(location: str):
+    return {
+        "location": location,
+        "forecast": get_forecast(location)
     }
