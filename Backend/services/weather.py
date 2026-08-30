@@ -21,7 +21,11 @@ def get_weather(location: str):
         return {
             "temperature": None,
             "humidity": None,
-            "wind_speed": None
+            "wind_speed": None,
+            "solar_radiation": None,
+            "pressure": None,
+            "dew_point": None,
+            "timestamp": None
         }
 
     coordinates = LOCATIONS[location_key]
@@ -31,11 +35,19 @@ def get_weather(location: str):
     params = {
         "latitude": coordinates["latitude"],
         "longitude": coordinates["longitude"],
-        "current": "temperature_2m,relative_humidity_2m,wind_speed_10m",
+        "current": (
+            "temperature_2m,"
+            "relative_humidity_2m,"
+            "wind_speed_10m,"
+            "shortwave_radiation,"
+            "pressure_msl,"
+            "dew_point_2m"
+        ),
+        "wind_speed_unit": "ms",
         "timezone": "Asia/Kolkata"
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
     response.raise_for_status()
 
     current = response.json()["current"]
@@ -43,5 +55,9 @@ def get_weather(location: str):
     return {
         "temperature": current["temperature_2m"],
         "humidity": current["relative_humidity_2m"],
-        "wind_speed": current["wind_speed_10m"]
+        "wind_speed": current["wind_speed_10m"],
+        "solar_radiation": current["shortwave_radiation"],
+        "pressure": current["pressure_msl"],
+        "dew_point": current["dew_point_2m"],
+        "timestamp": current["time"]
     }

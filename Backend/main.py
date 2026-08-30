@@ -3,7 +3,6 @@ from schemas import DashboardResponse
 
 from services.weather import get_weather
 from services.thermal import calculate_thermal_stress
-from services.risk import predict_risk
 from services.recommendation import generate_recommendations
 from services.forecast import get_forecast
 app = FastAPI()
@@ -24,7 +23,11 @@ def dashboard(location: str):
 
     thermal = calculate_thermal_stress(weather)
 
-    risk = predict_risk(weather, thermal)
+    risk = {
+    "score": thermal["index"],
+    "level": thermal["level"],
+    "confidence": None
+}
 
     recommendations = generate_recommendations(risk)
 

@@ -6,6 +6,10 @@ class WeatherData(BaseModel):
     temperature: Optional[float] = None
     humidity: Optional[float] = None
     wind_speed: Optional[float] = None
+    solar_radiation: Optional[float] = None
+    pressure: Optional[float] = None
+    dew_point: Optional[float] = None
+    timestamp: Optional[str] = None
 
 
 class ThermalStress(BaseModel):
@@ -25,4 +29,3 @@ class DashboardResponse(BaseModel):
     thermal_stress: ThermalStress
     risk: RiskData
     recommendations: list[str]
-    
