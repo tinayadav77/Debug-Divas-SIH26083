@@ -1,12 +1,21 @@
 from fastapi import FastAPI
 from schemas import DashboardResponse
 
+from fastapi.middleware.cors import CORSMiddleware
 from services.weather import get_weather
 from services.thermal import calculate_thermal_stress
 from services.recommendation import generate_recommendations
 from services.forecast import get_forecast
 app = FastAPI()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def home():

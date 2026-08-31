@@ -3,6 +3,7 @@ import xgboost as xgb
 import joblib
 
 
+
 # Load model once when the backend starts
 model = xgb.XGBClassifier()
 model.load_model("models/heat_stress_xgb_model.json")
