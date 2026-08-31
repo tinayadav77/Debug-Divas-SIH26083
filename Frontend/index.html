@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HeatWatch — Extreme Heat Early Warning Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #11151b;
+    --surface: #171d24;
+    --surface-2: #1c2329;
+    --border: #2a323b;
+    --border-soft: #232a32;
+    --text: #eef1f4;
+    --text-dim: #9aa5b1;
+    --text-faint: #6e7883;
+    --red: #e8432b;
+    --yellow: #f5a623;
+    --green: #3fa76b;
+    --red-tint: #e8432b1a;
+    --yellow-tint: #f5a6231a;
+    --green-tint: #3fa76b1a;
+    --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: inherit; }
+
+  :focus-visible{
+    outline: 2px solid var(--yellow);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  h1, h2, h3, h4{
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin: 0;
+    color: var(--text);
+  }
+
+  p{ margin: 0; }
+
+  .muted{ color: var(--text-dim); }
+
+  ul{ margin: 0; padding: 0; list-style: none; }
+
+  /* ---------- Layout shells ---------- */
+  .site-header{
+    border-bottom: 1px solid var(--border-soft);
+    background: linear-gradient(180deg, #141a20 0%, var(--bg) 100%);
+  }
+  .header-inner{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand{ display: flex; align-items: center; gap: 14px; }
+  .brand-mark{
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--yellow);
+    flex-shrink: 0;
+  }
+  .brand h1{ font-size: 22px; letter-spacing: -0.01em; }
+  .brand-sub{ margin-top: 2px; font-size: 13px; color: var(--text-dim); }
+
+  .source-badge{
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .source-badge.is-live{
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--green-tint);
+  }
+
+  main{ max-width: 1120px; margin: 0 auto; padding: 8px 24px 64px; }
+
+  .section{ padding: 40px 0; border-bottom: 1px solid var(--border-soft); }
+  .section:last-of-type{ border-bottom: none; }
+  .section-title{ font-size: 20px; margin-bottom: 4px; }
+  .section-sub{ font-size: 13.5px; margin-bottom: 20px; }
+  .section > .section-title{ margin-bottom: 18px; }
+
+  .panel{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .panel h3{ font-size: 15px; margin-bottom: 14px; }
+
+  .loading-row{
+    color: var(--text-faint);
+    font-size: 13.5px;
+    padding: 18px 4px;
+  }
+
+  .stat-num{ display: block; font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+  .stat-label{ display: block; font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+
+  .eyebrow{ display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 3px; letter-spacing: 0.01em; }
+
+  /* ---------- Risk color utilities ---------- */
+  .risk-text-red{ color: var(--red); }
+  .risk-text-yellow{ color: var(--yellow); }
+  .risk-text-green{ color: var(--green); }
+
+  .risk-bg-red{ background: var(--red); color: #1b0d09; }
+  .risk-bg-yellow{ background: var(--yellow); color: #1b1206; }
+  .risk-bg-green{ background: var(--green); color: #08160f; }
+
+  .risk-border-red{ border-color: var(--red); }
+  .risk-border-yellow{ border-color: var(--yellow); }
+  .risk-border-green{ border-color: var(--green); }
+
+  .risk-fill-red{ fill: var(--red); background-color: var(--red); }
+  .risk-fill-yellow{ fill: var(--yellow); background-color: var(--yellow); }
+  .risk-fill-green{ fill: var(--green); background-color: var(--green); }
+
+  .risk-dot{
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .risk-dot.risk-red{ background: var(--red); box-shadow: 0 0 0 3px var(--red-tint); }
+  .risk-dot.risk-yellow{ background: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-tint); }
+  .risk-dot.risk-green{ background: var(--green); box-shadow: 0 0 0 3px var(--green-tint); }
+
+  .risk-chip{
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Alerts + early warning ---------- */
+  .alert-ticker{ margin-bottom: 14px; }
+  .alert-pill{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    flex-wrap: wrap;
+  }
+  .alert-pill-badge{
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.18);
+    flex-shrink: 0;
+  }
+  .alert-pill-text{ font-size: 14px; }
+  .alert-pill-text strong{ font-weight: 600; }
+
+  .early-warning-box p{ font-size: 14px; margin-top: 6px; }
+  .early-warning-box p + p{ margin-top: 4px; }
+
+  /* ---------- City cards ---------- */
+  .city-cards{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .city-card{
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .city-card:hover{ transform: translateY(-1px); }
+  .city-card.is-active{
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+  .city-card-top{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .city-card-top h3{ font-size: 17px; }
+  .city-card-subtitle{ font-size: 12.5px; color: var(--text-dim); margin-top: 3px; }
+  .city-card-stats{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 16px 0 12px;
+  }
+  .city-card-risk{ font-size: 13px; font-weight: 600; }
+
+  /* ---------- Conditions: risk card + forecast ---------- */
+  .conditions-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .ward-detail-stats{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 14px 0 18px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .ward-detail-affected h4{ font-size: 13px; color: var(--text-dim); font-weight: 600; margin-bottom: 6px; }
+  .ward-detail-affected p{ font-size: 14px; }
+  .ward-detail-affected + .ward-detail-affected{ margin-top: 16px; }
+  .recommendations-list{ display: flex; flex-direction: column; gap: 6px; }
+  .recommendations-list li{
+    font-size: 13.5px;
+    padding-left: 14px;
+    position: relative;
+  }
+  .recommendations-list li::before{
+    content: "";
+    position: absolute;
+    left: 0; top: 8px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--yellow);
+  }
+
+  .forecast-panel h3{ font-size: 15px; }
+  .forecast-panel h3 span{ color: var(--text-dim); font-weight: 500; }
+  .forecast-list{
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .forecast-item{
+    flex: 0 0 auto;
+    min-width: 108px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+  .forecast-item .stat-num{ font-size: 17px; margin-top: 2px; }
+  .forecast-item .stat-num + .stat-label{ margin-bottom: 6px; }
+
+  /* ---------- Ward map ---------- */
+  .ward-map-head{ margin-bottom: 18px; }
+  .ward-grid{
+    display: grid;
+    grid-template-columns: minmax(260px, 380px) 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .ward-map-panel{ display: flex; justify-content: center; }
+  #ward-map-svg{ width: 100%; max-width: 340px; height: auto; }
+  .ward-rect{ stroke: var(--bg); stroke-width: 2; cursor: pointer; transition: opacity 0.12s ease; }
+  .ward-cell:hover .ward-rect, .ward-cell:focus .ward-rect{ opacity: 0.78; }
+  .ward-cell{ outline: none; }
+  .ward-cell:focus .ward-rect{ stroke: var(--text); }
+  .ward-label{
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    fill: #11151b;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .ward-detail-head{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .ward-detail-head h3{ font-size: 18px; margin-top: 2px; }
+
+  /* ---------- Vulnerable groups ---------- */
+  .vulnerable-groups{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .group-card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .group-card h4{ font-size: 14.5px; margin-bottom: 6px; }
+  .group-card p{ font-size: 13px; color: var(--text-dim); }
+
+  .vuln-chart{ display: flex; flex-direction: column; gap: 8px; }
+  .vuln-row{ display: grid; grid-template-columns: 130px 1fr 30px; align-items: center; gap: 10px; }
+  .vuln-row-label{ font-size: 12.5px; color: var(--text-dim); }
+  .vuln-row-track{
+    height: 7px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .vuln-row-fill{ height: 100%; border-radius: 4px; }
+  .vuln-row-value{ font-size: 12px; text-align: right; color: var(--text-dim); }
+
+  /* ---------- Safety guidelines ---------- */
+  .safety-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .guideline-list{ display: flex; flex-direction: column; gap: 10px; }
+  .guideline-list li{
+    font-size: 13.5px;
+    padding-left: 18px;
+    position: relative;
+  }
+  .guideline-list.dos li::before{ content: "+"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .guideline-list.donts li::before{ content: "–"; position: absolute; left: 2px; color: var(--red); font-weight: 700; }
+
+  /* ---------- Emergency contacts ---------- */
+  .contacts-list{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .contact-row{
+    background: var(--surface);
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .contact-label{ font-size: 13px; color: var(--text-dim); }
+  .contact-value{ font-size: 14px; font-weight: 600; font-family: var(--font-display); }
+  .contact-row.is-sample .contact-value{ color: var(--text-dim); font-weight: 500; }
+  .contact-row.is-sample .contact-value::after{
+    content: "";
+  }
+
+  .site-footer{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px 24px 40px;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px){
+    .conditions-grid, .ward-grid, .safety-grid{ grid-template-columns: 1fr; }
+    .city-cards{ grid-template-columns: 1fr; }
+    .vulnerable-groups{ grid-template-columns: 1fr 1fr; }
+    .contacts-list{ grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px){
+    .header-inner{ padding: 18px 18px; }
+    main{ padding: 4px 18px 48px; }
+    .vulnerable-groups{ grid-template-columns: 1fr; }
+    .city-card-stats{ grid-template-columns: 1fr 1fr; }
+    .ward-detail-stats{ grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4"/>
+          <path d="M12 18a4 4 0 0 0 2-7.46V4a2 2 0 0 0-4 0v6.54A4 4 0 0 0 12 18Z"/>
+          <path d="M18 9h2"/>
+          <path d="M4 9h2"/>
+        </svg>
+      </span>
+      <div>
+        <h1>HeatWatch</h1>
+        <p class="brand-sub">Extreme heat early warning — Vijayawada &amp; Aynavolu</p>
+      </div>
+    </div>
+    <div id="data-source-badge" class="source-badge">Checking data source…</div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="section alerts-section" aria-label="Active alerts">
+    <div id="alert-ticker" class="alert-ticker">
+      <div class="loading-row">Loading current alerts…</div>
+    </div>
+    <div id="early-warning-card"></div>
+  </section>
+
+  <section class="section" aria-labelledby="cities-heading">
+    <h2 id="cities-heading" class="section-title">Cities</h2>
+    <div id="city-cards" class="city-cards">
+      <div class="loading-row">Reading live sensor feed…</div>
+    </div>
+  </section>
+
+  <section class="section conditions-section" aria-labelledby="conditions-heading">
+    <h2 id="conditions-heading" class="section-title">Current conditions — <span id="conditions-city-label">Vijayawada</span></h2>
+    <div class="conditions-grid">
+      <div id="risk-card" class="panel risk-card">
+        <p class="muted">Loading risk assessment…</p>
+      </div>
+      <div class="panel forecast-panel">
+        <h3>Forecast — <span id="forecast-city-label">Vijayawada</span></h3>
+        <div id="forecast-list" class="forecast-list">
+          <p class="muted">Loading forecast…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section ward-section" id="ward-map-section" aria-labelledby="ward-map-title">
+    <div class="ward-map-head">
+      <h2 id="ward-map-title" class="section-title">Demo ward map</h2>
+      <p id="ward-map-sub" class="section-sub muted">Loading ward data…</p>
+    </div>
+    <div class="ward-grid">
+      <div class="panel ward-map-panel">
+        <svg id="ward-map-svg" viewBox="0 0 340 340" role="img" aria-label="Ward risk map"></svg>
+      </div>
+      <div id="ward-detail" class="panel ward-detail">
+        <p class="muted">Select a ward on the map to see its details.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="vulnerable-heading">
+    <h2 id="vulnerable-heading" class="section-title">Who's most at risk</h2>
+    <div id="vulnerable-groups" class="vulnerable-groups">
+      <div class="loading-row">Loading vulnerable-group guidance…</div>
+    </div>
+  </section>
+
+  <section class="section safety-section" aria-labelledby="safety-heading">
+    <h2 id="safety-heading" class="section-title">Safety guidelines</h2>
+    <div class="safety-grid">
+      <div class="panel">
+        <h3>Do</h3>
+        <ul id="dos-list" class="guideline-list dos"></ul>
+      </div>
+      <div class="panel">
+        <h3>Don't</h3>
+        <ul id="donts-list" class="guideline-list donts"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="contacts-heading">
+    <h2 id="contacts-heading" class="section-title">Emergency contacts — <span id="contacts-city-label">Vijayawada</span></h2>
+    <div id="contacts-list" class="contacts-list">
+      <div class="loading-row">Loading emergency contacts…</div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Demo dashboard built for a disaster-management hackathon. Dashboard and forecast figures come from the connected FastAPI backend; the ward map and reference guidance are simulated for demonstration.</p>
+</footer>
+
+<script>
+  // Point this at your FastAPI backend before _Final.js loads.
+  // Leave as-is to use the same default the script falls back to.
+  window.HEATWATCH_API_BASE_URL = "http://127.0.0.1:8000";
+</script>
+<script src="./Final.js"></script>
+</body>
+</html>
