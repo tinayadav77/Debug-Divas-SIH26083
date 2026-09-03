@@ -21,7 +21,7 @@ SIH26083 — Extreme Heatwave Early Warning and Human Thermal Stress Index
 ## 🚨 Problem statement: SIH26083
 Extreme Heatwave Early warning and Human Thermal stress Index
     - Many parts of India is facing deaths and severe health issues due to extreme heatwaves.
-    The current systems display only the temperature of the weather but a human body reacts differently for different conditions.
+    The current systems display only the temperature of the weather but a human body reacts differently for different conditions as the weather includes following factors : **Solar Radiation, Humidity, Windspeed, Pressure, CloudCover and Precipitation**
     Our solution HEATSHEILD  is proposed to calculate the thermal stress index of a person and give recommendations according to the level of thermal stress.
     Our system also provides prior early warning, so that people will not get effected by the unexpected rise in temperature and heatwaves.
     
