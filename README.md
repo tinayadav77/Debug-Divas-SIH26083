@@ -4,13 +4,18 @@ SIH26083 — Extreme Heatwave Early Warning and Human Thermal Stress Index
 
 ## 📸 Project Preview
 
-![Dashboard](Screenshot 2026-08-31 135154.png)
+![Dashboard]
+<img width="1163" height="677" alt="Screenshot 2026-08-31 135154" src="https://github.com/user-attachments/assets/1949bcad-c60b-4240-8251-d04c29dcad6a" />
 
-![Risk Map](Screenshot 2026-08-31 135210.png)
+![Risk Map]
+<img width="1120" height="677" alt="Screenshot 2026-08-31 135210" src="https://github.com/user-attachments/assets/34bc376b-7841-4ab7-bed0-30c9df0a8636" />
 
-![Vulnerable Groups](Screenshot 2026-08-31 135222.png)
+![Vulnerable Groups]
+<img width="1152" height="666" alt="Screenshot 2026-08-31 135222" src="https://github.com/user-attachments/assets/b05634eb-8b07-409a-9402-4eaaa229c693" />
 
-![Safety Guidelines and Recommendations](Screenshot 2026-08-31 135233.png)
+
+![Safety Guidelines and Recommendations]
+<img width="1117" height="682" alt="Screenshot 2026-08-31 135233" src="https://github.com/user-attachments/assets/e19aaabb-0ba6-46f4-aa10-ef644f78e9a1" />
 
 
 ## 🚨 Problem statement: SIH26083
